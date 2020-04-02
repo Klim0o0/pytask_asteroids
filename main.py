@@ -43,9 +43,9 @@ class player:
         self.direction = (self.direction + angle) % (2 * math.pi)
 
     def add_speed(self, speed_x: float, speed_y: float):
-        if 5 > math.fabs(self.speed_x + speed_x):
+        if 4 > math.fabs(self.speed_x + speed_x):
             self.speed_x += speed_x
-        if 5 > math.fabs(self.speed_y + speed_y):
+        if 4 > math.fabs(self.speed_y + speed_y):
             self.speed_y += speed_y
 
 
@@ -140,7 +140,7 @@ class game:
                 i.move()
                 i.draw()
                 i.ticks += 1
-                if i.ticks >= 12пп0:
+                if i.ticks >= 120:
                     self.shots.remove(i)
 
             for j in self.asteroids:
