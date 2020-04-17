@@ -8,7 +8,7 @@ from GameObjects import Asteroid, Player, Shot, get_distance
 class Game:
     def __init__(self, window_width: int, window_height: int, lvl: int,
                  asteroids=None):
-        self.totoal_score = 0
+        self.total_score = 0
         self.p = Player(window_width / 2, window_height / 2, 0, 0, 15,
                         window_width, window_height)
         self.window_width = window_width
@@ -137,4 +137,4 @@ class Game:
         while game_active:
             self.__init__(self.window_width, self.window_height, self.lvl + 1)
             game_active = self.start_lvl()
-            self.totoal_score += self.p.score
+            self.total_score += self.p.score
