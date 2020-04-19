@@ -25,6 +25,17 @@ class NotZeroSpeedMovingTest(unittest.TestCase):
         self.assertEqual(self.game_object.y, 1)
 
 
+class MovingOutMapTest(unittest.TestCase):
+    def setUp(self):
+        self.game_object = GameObject(8, 0, 3, 0, 0, 10, 10)
+
+    def test(self):
+        self.game_object.move()
+
+        self.assertEqual(self.game_object.x, 1)
+        self.assertEqual(self.game_object.y, 0)
+
+
 class SpeedLimitTest(unittest.TestCase):
     def setUp(self):
         self.player = Player(0, 0, 0, 3.5, 0, 10, 10)
@@ -33,6 +44,17 @@ class SpeedLimitTest(unittest.TestCase):
         self.player.add_speed(1, 1)
 
         self.assertEqual(self.player.speed_y, 3.5)
+        self.assertEqual(self.player.speed_x, 1)
+
+
+class SpeedAddTest(unittest.TestCase):
+    def setUp(self):
+        self.player = Player(0, 0, 0, 0, 0, 10, 10)
+
+    def test(self):
+        self.player.add_speed(1, 1)
+
+        self.assertEqual(self.player.speed_y, 1)
         self.assertEqual(self.player.speed_x, 1)
 
 
@@ -69,7 +91,6 @@ class MoreTwoPiTurnTest(unittest.TestCase):
 class AsteroidPlayerCollision(unittest.TestCase):
     def setUp(self):
         self.game = Game(100, 100, 0, [Asteroid(0, 0, 0, 0, 10, 100, 100)])
-
 
     def test(self):
         self.assert_(not self.game.check_collision())
