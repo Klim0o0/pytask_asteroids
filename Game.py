@@ -64,8 +64,12 @@ class Game:
             i.move()
             i.draw(pygame, self.win)
             i.ticks += 1
-            if i.ticks >= 120:
+            if i.ticks >= 200:
                 self.shots.remove(i)
+            if get_distance(self.p.x, self.p.y, i.x,
+                            i.y) < self.p.size:
+                return True
+        return False
 
     def move_and_draw_asteroids(self):
         for i in self.asteroids:
@@ -118,7 +122,8 @@ class Game:
             self.win.fill((0, 0, 0))
 
             self.check_events()
-            self.move_shots()
+            if self.move_shots():
+                return False
             self.p.move()
             self.p.draw(pygame, self.win)
             self.move_and_draw_asteroids()
@@ -127,7 +132,6 @@ class Game:
                 return False
 
             pygame.display.update()
-
             if len(self.asteroids) == 0:
                 return True
         return False
