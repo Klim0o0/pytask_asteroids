@@ -2,16 +2,9 @@ from abc import ABC, abstractmethod
 import math
 
 
-def get_distance(x1: float, y1: float, x2: float, y2: float):
-    x = x1 - x2
-    y = y1 - y2
-    return math.sqrt(x * x + y * y)
-gitr
-
 class GameObject:
 
-    @abstractmethod
-    def __init__(self, x: int, y: int, speed_x: float, speed_y: float,
+    def __init__(self, x: float, y: float, speed_x: float, speed_y: float,
                  r: float, window_width: int, window_height: int):
         self.speed_y = speed_y
         self.size = r
@@ -74,13 +67,11 @@ class Asteroid(GameObject, ABC):
 
 class Shot(GameObject):
     def __init__(self, p: Player, window_width: int, window_height: int):
-        direction = p.direction
-        self.x = p.x - 20 * math.cos(direction + math.pi)
-        self.y = p.y - 20 * math.sin(direction + +math.pi)
-        self.speed_x = 6 * math.cos(direction)
-        self.speed_y = 6 * math.sin(direction)
-        self.window_width = window_width
-        self.window_height = window_height
+        super().__init__(p.x - 20 * math.cos(p.direction + math.pi),
+                         p.y - 20 * math.sin(p.direction + +math.pi),
+                         6 * math.cos(p.direction), 6 * math.sin(p.direction),
+                         2,
+                         window_width, window_height)
         self.ticks = 0
 
     def draw(self, pygame, win):
