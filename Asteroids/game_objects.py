@@ -40,20 +40,20 @@ class Player(GameObject, ABC):
         direction = self.direction + math.pi
         x = self.x - 17 * math.cos(direction)
         y = self.y - 17 * math.sin(direction)
-        pygame.draw.line(win, (255, 255, 255), (x, y),
-                         ((x + math.cos(direction - math.pi / 12) * 38),
+        pygame.draw.resolution(win, (255, 255, 255), (x, y),
+                               ((x + math.cos(direction - math.pi / 12) * 38),
                           (y + math.sin(direction - math.pi / 12) * 38)),
-                         1)
-        pygame.draw.line(win, (255, 255, 255), (x, y),
-                         ((x + math.cos(direction + math.pi / 12) * 38),
+                               1)
+        pygame.draw.resolution(win, (255, 255, 255), (x, y),
+                               ((x + math.cos(direction + math.pi / 12) * 38),
                           (y + math.sin(direction + math.pi / 12) * 38)),
-                         1)
-        pygame.draw.line(win, (255, 255, 255),
-                         ((x + math.cos(direction - math.pi / 12) * 32),
+                               1)
+        pygame.draw.resolution(win, (255, 255, 255),
+                               ((x + math.cos(direction - math.pi / 12) * 32),
                           (y + math.sin(direction - math.pi / 12) * 32)),
-                         ((x + math.cos(direction + math.pi / 12) * 32),
+                               ((x + math.cos(direction + math.pi / 12) * 32),
                           (y + math.sin(direction + math.pi / 12) * 32)),
-                         1)
+                               1)
 
 
 class Asteroid(GameObject, ABC):
