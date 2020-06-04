@@ -15,6 +15,7 @@ class GameObject:
         self.direction = 0
         self.window_width = window_width
         self.window_height = window_height
+        self.immortal_time = 0
 
     def move(self):
         self.y = (self.y + self.speed_y) % self.window_height
@@ -36,24 +37,33 @@ class GameObject:
 
 class Player(GameObject, ABC):
 
+    def __init__(self, x: float, y: float, speed_x: float, speed_y: float,
+                 r: float, window_width: int, window_height: int):
+        super().__init__(x, y, speed_x, speed_y,
+                         r, window_width, window_height)
+        self.health = 3
+
     def draw(self, pygame, win):
         direction = self.direction + math.pi
         x = self.x - 17 * math.cos(direction)
         y = self.y - 17 * math.sin(direction)
-        pygame.draw.resolution(win, (255, 255, 255), (x, y),
-                               ((x + math.cos(direction - math.pi / 12) * 38),
+        pygame.draw.line(win, (255, 255, 255), (x, y),
+                         ((x + math.cos(direction - math.pi / 12) * 38),
                           (y + math.sin(direction - math.pi / 12) * 38)),
-                               1)
-        pygame.draw.resolution(win, (255, 255, 255), (x, y),
-                               ((x + math.cos(direction + math.pi / 12) * 38),
+                         1)
+        pygame.draw.line(win, (255, 255, 255), (x, y),
+                         ((x + math.cos(direction + math.pi / 12) * 38),
                           (y + math.sin(direction + math.pi / 12) * 38)),
-                               1)
-        pygame.draw.resolution(win, (255, 255, 255),
-                               ((x + math.cos(direction - math.pi / 12) * 32),
+                         1)
+        pygame.draw.line(win, (255, 255, 255),
+                         ((x + math.cos(direction - math.pi / 12) * 32),
                           (y + math.sin(direction - math.pi / 12) * 32)),
-                               ((x + math.cos(direction + math.pi / 12) * 32),
+                         ((x + math.cos(direction + math.pi / 12) * 32),
                           (y + math.sin(direction + math.pi / 12) * 32)),
-                               1)
+                         1)
+        if self.immortal_time > 0:
+            pygame.draw.circle(win, (255, 255, 255),
+                               (int(self.x), int(self.y)), self.size * 2, 1)
 
 
 class Asteroid(GameObject, ABC):
@@ -74,6 +84,55 @@ class Shot(GameObject):
                          window_width, window_height)
         self.ticks = 0
 
+
+
     def draw(self, pygame, win):
         pygame.draw.circle(win, (255, 255, 255),
-                           (int(self.x - 2), int(self.y - 2)), 2)
+                           (int(self.x - 1), int(self.y - 1)), 2)
+
+
+class HpBonus(GameObject):
+    def __init__(self, game_object: GameObject, window_width: int,
+                 window_height: int):
+        super().__init__(game_object.x, game_object.y, 0, 0, 16, window_width,
+                         window_height)
+
+    def draw(self, pygame, win):
+        pygame.draw.circle(win, (255, 0, 0),
+                           (int(self.x - 8), int(self.y - 8)), 16)
+
+
+class ShieldBonus(GameObject):
+    def __init__(self, game_object: GameObject, window_width: int,
+                 window_height: int):
+        super().__init__(game_object.x, game_object.y, 0, 0, 16, window_width,
+                         window_height)
+
+    def draw(self, pygame, win):
+        pygame.draw.circle(win, (0, 0, 255),
+                           (int(self.x - 8), int(self.y - 8)), 16)
+
+
+class RateOfFireBonus(GameObject):
+    def __init__(self, game_object: GameObject, window_width: int,
+                 window_height: int):
+        super().__init__(game_object.x, game_object.y, 0, 0, 16, window_width,
+                         window_height)
+
+    def draw(self, pygame, win):
+        pygame.draw.circle(win, (0, 255, 0),
+                           (int(self.x - 8), int(self.y - 8)), 16)
+
+
+class UFO(GameObject):
+
+    def __init__(self, x: float, y: float, speed_x: float, speed_y: float,
+                 r: float, window_width: int, window_height: int):
+        super().__init__(x, y, speed_x, speed_y,
+                         r, window_width, window_height)
+        self.reload_time=0
+        self.default_reload_time = 150
+
+    def draw(self, pygame, win):
+        pygame.draw.circle(win, (150, 0, 150),
+                           (int(self.x - 8), int(self.y - 8)), 16)
