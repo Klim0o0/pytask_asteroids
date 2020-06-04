@@ -77,14 +77,12 @@ class Asteroid(GameObject, ABC):
 
 class Shot(GameObject):
     def __init__(self, p: Player, window_width: int, window_height: int):
-        super().__init__(p.x - 20 * math.cos(p.direction + math.pi),
-                         p.y - 20 * math.sin(p.direction + +math.pi),
+        super().__init__(p.x - (p.size+1) * math.cos(p.direction + math.pi),
+                         p.y - (p.size+1) * math.sin(p.direction + +math.pi),
                          6 * math.cos(p.direction), 6 * math.sin(p.direction),
                          2,
                          window_width, window_height)
         self.ticks = 0
-
-
 
     def draw(self, pygame, win):
         pygame.draw.circle(win, (255, 255, 255),
@@ -130,9 +128,14 @@ class UFO(GameObject):
                  r: float, window_width: int, window_height: int):
         super().__init__(x, y, speed_x, speed_y,
                          r, window_width, window_height)
-        self.reload_time=0
+        self.reload_time = 0
         self.default_reload_time = 150
 
     def draw(self, pygame, win):
-        pygame.draw.circle(win, (150, 0, 150),
-                           (int(self.x - 8), int(self.y - 8)), 16)
+        pygame.draw.arc(win, (255, 255, 255),
+                        (self.x - 30, self.y - 20, 60, 40), math.pi,
+                        math.pi * 2)
+        pygame.draw.arc(win, (255, 255, 255),
+                        (self.x - 20, self.y - 20, 40, 40), 0, math.pi)
+        pygame.draw.line(win, (255, 255, 255),
+                         (self.x - 30, self.y), (self.x + 30, self.y))
