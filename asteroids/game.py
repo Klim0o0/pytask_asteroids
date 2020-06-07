@@ -211,30 +211,17 @@ class Game:
             self.create_bonus(asteroid)
 
         if asteroid.size > 15:
-            self.asteroids.append(
-                Asteroid(asteroid.x, asteroid.y,
-                         asteroid.speed_x + 6 * (
-                                 random.random() - 0.5),
-                         asteroid.speed_y + 6 * (
-                                 random.random() - 0.5),
-                         10,
-                         self.window_width, self.window_height))
-            self.asteroids.append(
-                Asteroid(asteroid.x, asteroid.y,
-                         asteroid.speed_x + 6 * (
-                                 random.random() - 0.5),
-                         asteroid.speed_y + 6 * (
-                                 random.random() - 0.5),
-                         10,
-                         self.window_width, self.window_height))
-            self.asteroids.append(
-                Asteroid(asteroid.x, asteroid.y,
-                         asteroid.speed_x + 6 * (
-                                 random.random() - 0.5),
-                         asteroid.speed_y + 6 * (
-                                 random.random() - 0.5),
-                         10,
-                         self.window_width, self.window_height))
+            for i in range(3):
+                self.asteroids.append(self.create_random_asteroid(asteroid))
+
+    def create_random_asteroid(self, asteroid: Asteroid):
+        return Asteroid(asteroid.x, asteroid.y,
+                        asteroid.speed_x + 6 * (
+                                random.random() - 0.5),
+                        asteroid.speed_y + 6 * (
+                                random.random() - 0.5),
+                        10,
+                        self.window_width, self.window_height)
 
     def delete_ufo(self, ufo: UFO, shot: Shot):
         self.ufo_list.remove(ufo)
