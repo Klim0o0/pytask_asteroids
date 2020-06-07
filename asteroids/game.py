@@ -12,7 +12,7 @@ class Game:
     def __init__(self, resolution, level: int, difficult: int, scoreboard,
                  name, asteroids=None):
 
-        self.collision_handle = CH(self)
+        self.collision_handle = CollisionHandler(self)
         self.total_score = 0
         self.player = Player(resolution[0] / 2, resolution[1] / 2, 0, 0, 15,
                              resolution[0], resolution[1])
@@ -293,7 +293,7 @@ class Game:
         self.player.move()
 
 
-class CH:
+class CollisionHandler:
 
     @staticmethod
     def do_if_crashed(obj_1: GameObject, obj_2: GameObject, do):
