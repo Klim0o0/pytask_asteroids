@@ -1,9 +1,9 @@
 import unittest, math, pygame
 from unittest.mock import patch
-from Asteroids.game_objects import Player, GameObject, Shot, Asteroid, HpBonus, \
+from asteroids.game_objects import Player, GameObject, Shot, Asteroid, HPBonus, \
     ShieldBonus, RateOfFireBonus
-from Asteroids.game import Game
-from Asteroids.menu import Menu
+from asteroids.game import Game
+from asteroids.menu import Menu
 
 
 class ZeroSpeedMovingTest(unittest.TestCase):
@@ -106,7 +106,8 @@ class AsteroidPlayerCollisionTrue(unittest.TestCase):
                          [Asteroid(50, 50, 0, 0, 10, 100, 100)])
 
     def test(self):
-        self.assertTrue(self.game.check_collision())
+        self.game.check_collision()
+        self.assertEqual(self.game.player.health, 2)
 
 
 class AsteroidShotCollision(unittest.TestCase):
@@ -114,9 +115,14 @@ class AsteroidShotCollision(unittest.TestCase):
         self.game = Game((100, 100), 0, 1, [('w', 0)], "",
                          [Asteroid(50, 50, 0, 0, 10, 100, 100)])
         self.game.shots.append(Shot(self.game.player, 100, 100))
+        self.game.shots[0].x = 50
+        self.game.shots[0].y = 50
+        self.game.player.x = 0
+        self.game.player.y = 0
 
     def test(self):
-        self.assertTrue(self.game.check_collision())
+        self.game.check_collision()
+        self.assertEqual(len(self.game.asteroids), 0)
 
 
 class ShotMove(unittest.TestCase):
@@ -139,7 +145,7 @@ class ShotMoveInGame(unittest.TestCase):
         self.X = self.game.shots[0].x
 
     def test(self):
-        self.game.move_shots()
+        self.game.move()
         self.assertEqual(self.X + 6, self.game.shots[0].x)
 
 
@@ -241,22 +247,23 @@ class CreateBotuseTest(unittest.TestCase):
 
 class CheckBotuseColisionTest(unittest.TestCase):
     def setUp(self):
-        self.game = Game((100, 100), 0, 1,
+        self.game = Game((1000, 1000), 0, 1,
                          [('w', 1), ('w', 1), ('w', 1), ('w', 1), ('w', 1)],
                          "s",
-                         [Asteroid(50, 50, 0, 0, 80, 100, 100)])
+                         [Asteroid(0, 0, 0, 0, 80, 100, 100)])
 
     def test(self):
-        self.game.hp_bonuses.append(HpBonus(self.game.player, 100, 100))
+        self.game.hp_bonuses.append(
+            HPBonus(self.game.player, 100, 100, (0, 0, 0)))
         self.game.shield_bonuses.append(
-            ShieldBonus(self.game.player, 100, 100))
+            ShieldBonus(self.game.player, 100, 100, (0, 0, 0)))
         self.game.rate_fire_bonuses.append(
-            RateOfFireBonus(self.game.player, 100, 100))
-        self.game.check_bonuses_collision()
+            RateOfFireBonus(self.game.player, 100, 100, (0, 0, 0)))
+        self.game.check_collision()
         self.assertEqual(self.game.player.health, 4)
         self.assertEqual(self.game.player.immortal_time,
-                         self.game.default_immortal_time * 2)
-        self.assertEqual(self.game.refresh_speed, 2)
+        self.game.default_immortal_time * 2)
+        self.assertEqual(self.game.player.refresh_speed, 2)
 
 
 class UFOCreateTest(unittest.TestCase):
@@ -267,8 +274,8 @@ class UFOCreateTest(unittest.TestCase):
                          [Asteroid(50, 50, 0, 0, 80, 100, 100)])
 
     def test(self):
-        self.game.create_u_f_o()
-        self.assertEqual(len(self.game.u_f_o_list), 1)
+        self.game.create_ufo()
+        self.assertEqual(len(self.game.ufo_list), 1)
 
 
 class UFOShotTest(unittest.TestCase):
@@ -279,10 +286,10 @@ class UFOShotTest(unittest.TestCase):
                          [Asteroid(50, 50, 0, 0, 80, 100, 100)])
 
     def test(self):
-        self.game.create_u_f_o()
-        self.game.u_f_o_shot(self.game.u_f_o_list[0])
+        self.game.create_ufo()
+        self.game.shots.append(self.game.ufo_list[0].shot(self.game.player))
         self.assertEqual(len(self.game.shots), 1)
-        self.game.u_f_o_iteration()
+        self.game.ufo_try_shot()
         self.assertEqual(len(self.game.shots), 2)
 
 
@@ -291,13 +298,14 @@ class CheckUFOPlayerCollision(unittest.TestCase):
         self.game = Game((100, 100), 0, 1,
                          [('w', 1), ('w', 1), ('w', 1), ('w', 1), ('w', 1)],
                          "s",
-                         [Asteroid(50, 50, 0, 0, 80, 100, 100)])
+                         [Asteroid(0, 0, 0, 0, 1, 100, 100)])
 
     def test(self):
-        self.game.create_u_f_o()
-        self.game.player.x = self.game.u_f_o_list[0].x
-        self.game.player.y = self.game.u_f_o_list[0].y
-        self.assertTrue(self.game.check_u_f_o_player_collision())
+        self.game.create_ufo()
+        self.game.player.x = self.game.ufo_list[0].x
+        self.game.player.y = self.game.ufo_list[0].y
+        self.game.check_collision()
+        self.assertTrue(self.game.player.health==2)
 
 
 class CheckUFOPCollision(unittest.TestCase):
@@ -305,15 +313,15 @@ class CheckUFOPCollision(unittest.TestCase):
         self.game = Game((100, 100), 0, 1,
                          [('w', 1), ('w', 1), ('w', 1), ('w', 1), ('w', 1)],
                          "s",
-                         [Asteroid(50, 50, 0, 0, 80, 100, 100)])
+                         [Asteroid(0, 0, 0, 0, 1, 100, 100)])
 
     def test(self):
-        self.game.create_u_f_o()
-        self.game.u_f_o_shot(self.game.u_f_o_list[0])
-        self.game.shots[0].x = self.game.u_f_o_list[0].x
-        self.game.shots[0].y = self.game.u_f_o_list[0].y
-        self.game.check_u_f_o_collision()
-        self.assertEqual(len(self.game.u_f_o_list), 0)
+        self.game.create_ufo()
+        self.game.shots.append(self.game.ufo_list[0].shot(self.game.player))
+        self.game.shots[0].x = self.game.ufo_list[0].x
+        self.game.shots[0].y = self.game.ufo_list[0].y
+        self.game.check_collision()
+        self.assertEqual(len(self.game.ufo_list), 0)
         self.assertEqual(self.game.player.score, 2)
         self.assertEqual(len(self.game.shots), 0)
 

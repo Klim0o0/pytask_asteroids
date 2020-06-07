@@ -1,4 +1,4 @@
-from Asteroids.game import Game
+from asteroids.game import Game
 import config
 
 if __name__ == '__main__':
