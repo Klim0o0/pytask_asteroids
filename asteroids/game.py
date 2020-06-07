@@ -11,36 +11,40 @@ from asteroids.utils import get_distance
 class Game:
     def __init__(self, resolution, level: int, difficult: int, scoreboard,
                  name, asteroids=None):
-
-        self.collision_handle = CollisionHandler(self)
-        self.total_score = 0
-        self.player = Player(resolution[0] / 2, resolution[1] / 2, 0, 0, 15,
-                             resolution[0], resolution[1])
-        self.window_width = resolution[0]
-        self.window_height = resolution[1]
-        self.asteroids = asteroids
-        self.level = level
-        self.shots = list()
-        self.hp_bonuses = list()
-        self.shield_bonuses = list()
-        self.rate_fire_bonuses = list()
-        self.ufo_list = list()
-        self.refresh_time = 0
-        self.refresh_speed = 1
-        self.difficult = difficult
-        self.scoreboard = scoreboard
-        self.name = name
-        if not asteroids:
-            self.asteroids = list()
-            self.add_random_asteroid(level * difficult)
-
         pygame.init()
         pygame.font.init()
+        self.window_width = resolution[0]
+        self.window_height = resolution[1]
         self.window = pygame.display.set_mode(
             (self.window_width, self.window_height))
         self.menu = Menu(pygame, self.window, self.window_width,
                          self.window_height)
+
+        self.asteroids = asteroids
+        self.level = level
+        self.difficult = difficult
+        self.total_score = 0
+        self.scoreboard = scoreboard
+        self.name = name
         self.default_immortal_time = 100 / difficult
+        self.refresh_time = 0
+        self.refresh_speed = 1
+
+        if not asteroids:
+            self.asteroids = list()
+            self.add_random_asteroid(level * difficult)
+
+        self.player = Player(resolution[0] / 2, resolution[1] / 2, 0, 0, 15,
+                             resolution[0], resolution[1])
+
+
+        self.shots = list()
+
+        self.hp_bonuses = list()
+        self.shield_bonuses = list()
+        self.rate_fire_bonuses = list()
+
+        self.ufo_list = list()
 
     def add_random_asteroid(self, asteroids_count: int):
         for i in range(asteroids_count):
@@ -230,30 +234,37 @@ class Game:
         self.shots.remove(shot)
 
     def check_collision(self):
+        player_ufo_handle = CollisionHandler.get_handler(Player, UFO)
+        player_asteroid_handle = CollisionHandler.get_handler(Player, Asteroid)
+        player_shot_handle = CollisionHandler.get_handler(Player, Shot)
+        player_bonus_handle = CollisionHandler.get_handler(Player, Bonus)
+        asteroid_shot_handle = CollisionHandler.get_handler(Asteroid, Shot)
+        ufo_shot_handle = CollisionHandler.get_handler(UFO, Shot)
+
         for ufo in self.ufo_list:
-            self.collision_handle.check_collision(self.player, ufo)
+            player_ufo_handle(self, self.player, ufo)
         for asteroid in self.asteroids:
-            self.collision_handle.check_collision(self.player, asteroid)
+            player_asteroid_handle(self, self.player, asteroid)
 
         for shot in self.shots:
-            self.collision_handle.check_collision(self.player, shot)
+            player_shot_handle(self, self.player, shot)
             for ufo in self.ufo_list:
-                self.collision_handle.check_collision(ufo, shot)
+                ufo_shot_handle(self, ufo, shot)
             for asteroid in self.asteroids:
-                self.collision_handle.check_collision(asteroid, shot)
+                asteroid_shot_handle(self, asteroid, shot)
 
         for bonus in self.rate_fire_bonuses:
-            self.collision_handle.check_collision(self.player, bonus)
+            player_bonus_handle(self, self.player, bonus)
             if bonus.used:
                 self.rate_fire_bonuses.remove(bonus)
 
         for bonus in self.shield_bonuses:
-            self.collision_handle.check_collision(self.player, bonus)
+            player_bonus_handle(self, self.player, bonus)
             if bonus.used:
                 self.shield_bonuses.remove(bonus)
 
         for bonus in self.hp_bonuses:
-            self.collision_handle.check_collision(self.player, bonus)
+            player_bonus_handle(self, self.player, bonus)
             if bonus.used:
                 self.hp_bonuses.remove(bonus)
 
@@ -294,65 +305,30 @@ class Game:
 
 
 class CollisionHandler:
+    HANDLERS = {
+        (Player, Bonus): lambda game, player, bonus: bonus.buff(player),
+        (Player, UFO): lambda game, player, ufo: game.game_over(ufo),
+        (Player, Shot): lambda game, player, shot: game.game_over(shot),
+        (Player, Asteroid): lambda game, player,
+                                   asteroid: game.game_over(asteroid),
+        (Asteroid, Shot): lambda game, asteroid, shot: game.delete_asteroid(
+            asteroid, shot),
+        (UFO, Shot): lambda game, ufo, shot: game.delete_ufo(ufo, shot),
+    }
 
     @staticmethod
-    def do_if_crashed(obj_1: GameObject, obj_2: GameObject, do):
-        if get_distance(obj_1.x, obj_1.y, obj_2.x,
-                        obj_2.y) <= obj_1.size + obj_2.size:
-            do(obj_1, obj_2)
+    def check_collision(func):
+        def wrapper(game: Game, obj_1: GameObject, obj_2: GameObject):
+            if get_distance(obj_1.x, obj_1.y, obj_2.x,
+                            obj_2.y) <= obj_1.size + obj_2.size:
+                func(game, obj_1, obj_2)
 
-    def __init__(self, game: Game):
-        self.collision = {
-            (Player, HPBonus):
-                lambda player, bonus: self.do_if_crashed(player, bonus,
-                                                         lambda player_1,
-                                                                bonus_1: bonus_1.buff(
-                                                             player_1)),
-            (Player, ShieldBonus):
-                lambda player, bonus: self.do_if_crashed(player, bonus,
-                                                         lambda player_1,
-                                                                bonus_1: bonus_1.buff(
-                                                             player_1)),
-            (Player, RateOfFireBonus):
-                lambda player, bonus: self.do_if_crashed(player, bonus,
-                                                         lambda player_1,
-                                                                bonus_1: bonus_1.buff(
-                                                             player_1)),
-            (Player, UFO):
-                lambda player, ufo: self.do_if_crashed(player, ufo,
-                                                       lambda player_1,
-                                                              ufo_1: game.game_over(
-                                                           ufo)),
-            (Player, Shot):
-                lambda player, shot: self.do_if_crashed(player, shot,
-                                                        lambda player_1,
-                                                               shot_1: game.game_over(
-                                                            shot)),
-            (Player, Asteroid):
-                lambda player, asteroid: self.do_if_crashed(player,
-                                                            asteroid,
-                                                            lambda
-                                                                player_1,
-                                                                asteroid_1: game.game_over(
-                                                                asteroid)),
+        return wrapper
 
-            (Asteroid, Shot):
-                lambda asteroid, shot: self.do_if_crashed(asteroid,
-                                                          shot,
-                                                          lambda
-                                                              asteroid_1,
-                                                              shot_1: game.delete_asteroid(
-                                                              asteroid_1,
-                                                              shot_1)),
-
-            (UFO, Shot):
-                lambda ufo, shot: self.do_if_crashed(ufo,
-                                                     shot,
-                                                     lambda
-                                                         ufo_1,
-                                                         shot_1: game.delete_ufo(
-                                                         ufo_1, shot_1)),
-        }
-
-    def check_collision(self, obj_1, obj_2):
-        self.collision[type(obj_1), type(obj_2)](obj_1, obj_2)
+    @classmethod
+    def get_handler(cls, obj_1: type(GameObject), obj_2: type(GameObject)):
+        try:
+            handler = cls.HANDLERS[(obj_1, obj_2)]
+            return cls.check_collision(handler)
+        except KeyError:
+            return lambda game, a, b: None
