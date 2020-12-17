@@ -1,8 +1,11 @@
-import unittest, math, pygame
+import math
+import pygame
+import unittest
 from unittest.mock import patch
+
+from asteroids.game import Game
 from asteroids.game_objects import Player, GameObject, Shot, Asteroid, \
     HPBonus, ShieldBonus, RateOfFireBonus
-from asteroids.game import Game
 from asteroids.menu import Menu
 
 
