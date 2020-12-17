@@ -39,7 +39,7 @@ class Menu:
                             sys.exit()
             self.pygame.display.update()
 
-    def start_game_over_screen(self, font,scoreboard):
+    def start_game_over_screen(self, font, scoreboard):
         while True:
             if self.check_game_over_events():
                 return
@@ -47,14 +47,15 @@ class Menu:
             ofset = 0
             for item in scoreboard:
                 self.win.blit(
-                    font.render(str(item[0]+" "+ str(item[1])), 1,
+                    font.render(str(item[0] + " " + str(item[1])), 1,
                                 (250, 250, 250)),
-                    (self.window_height / 2 - 100, self.window_width / 2+ofset))
-                ofset+=25
+                    (self.window_height / 2 - 100,
+                     self.window_width / 2 + ofset))
+                ofset += 25
             self.win.blit(
                 font.render("To restart press right shift", 1,
                             (250, 250, 250)),
-                (self.window_height / 2 - 150, self.window_width -120))
+                (self.window_height / 2 - 150, self.window_width - 120))
             self.pygame.display.update()
 
     def check_game_over_events(self):

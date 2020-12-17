@@ -1,7 +1,7 @@
 import unittest, math, pygame
 from unittest.mock import patch
-from asteroids.game_objects import Player, GameObject, Shot, Asteroid, HPBonus, \
-    ShieldBonus, RateOfFireBonus
+from asteroids.game_objects import Player, GameObject, Shot, Asteroid, \
+    HPBonus, ShieldBonus, RateOfFireBonus
 from asteroids.game import Game
 from asteroids.menu import Menu
 
@@ -262,7 +262,7 @@ class CheckBotuseColisionTest(unittest.TestCase):
         self.game.check_collision()
         self.assertEqual(self.game.player.health, 4)
         self.assertEqual(self.game.player.immortal_time,
-        self.game.default_immortal_time * 2)
+                         self.game.default_immortal_time * 2)
         self.assertEqual(self.game.player.refresh_speed, 2)
 
 
@@ -305,7 +305,7 @@ class CheckUFOPlayerCollision(unittest.TestCase):
         self.game.player.x = self.game.ufo_list[0].x
         self.game.player.y = self.game.ufo_list[0].y
         self.game.check_collision()
-        self.assertTrue(self.game.player.health==2)
+        self.assertTrue(self.game.player.health == 2)
 
 
 class CheckUFOPCollision(unittest.TestCase):

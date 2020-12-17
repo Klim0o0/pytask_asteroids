@@ -37,7 +37,6 @@ class Game:
         self.player = Player(resolution[0] / 2, resolution[1] / 2, 0, 0, 15,
                              resolution[0], resolution[1])
 
-
         self.shots = list()
 
         self.hp_bonuses = list()
