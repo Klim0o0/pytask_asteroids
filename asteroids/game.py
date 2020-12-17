@@ -308,8 +308,8 @@ class CollisionHandler:
         (Player, Bonus): lambda game, player, bonus: bonus.buff(player),
         (Player, UFO): lambda game, player, ufo: game.game_over(ufo),
         (Player, Shot): lambda game, player, shot: game.game_over(shot),
-        (Player, Asteroid): lambda game, player,
-                                   asteroid: game.game_over(asteroid),
+        (Player, Asteroid): lambda game, player, asteroid: game.game_over(
+            asteroid),
         (Asteroid, Shot): lambda game, asteroid, shot: game.delete_asteroid(
             asteroid, shot),
         (UFO, Shot): lambda game, ufo, shot: game.delete_ufo(ufo, shot),
